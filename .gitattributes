@@ -1,0 +1,19 @@
+# Set the default behavior to automatically normalize line endings.
+* text=auto
+
+# Force all text files to use LF line endings in the repository.
+* text eol=lf
+
+# Explicitly specify .sh files to use LF line endings.
+*.sh text eol=lf
+
+# Explicitly specify any binary files to not be normalized.
+*.jpg binary
+*.png binary
+*.gif binary
+*.zip binary
+*.exe binary
+
+# Set CRLF for Windows-specific files if necessary.
+*.bat text eol=crlf
+*.cmd text eol=crlf
