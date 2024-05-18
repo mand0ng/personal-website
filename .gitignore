@@ -1,0 +1,6 @@
+# .gitignore
+**/node_modules/
+**/__pycache__/
+**/*.log
+**/*.env
+**/.venv

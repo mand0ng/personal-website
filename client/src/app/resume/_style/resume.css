@@ -1,0 +1,12 @@
+
+.bg-resize {
+    background-size: 30.00% auto; 
+    
+    @media (min-width: 768px) {
+      background-size: 25.55% auto;
+    }
+  
+    @media (min-width: 1024px) {
+      background-size: 27.77% auto;
+    }
+  }

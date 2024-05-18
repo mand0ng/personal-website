@@ -1,0 +1,58 @@
+version: "3.8"
+
+services: 
+  client: 
+    build:
+      context: ./client
+      dockerfile: Dockerfile.client
+    ports:
+      - "3000:3000"
+    networks:
+      - main
+    volumes:
+      - ./client:/app
+    environment:
+      - NODE_ENV=development
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.api
+    ports: 
+      - "5000:5000"
+    volumes:
+      - ./api:/app
+    networks:
+      - main
+
+  socket_server:
+    build:
+      context: ./socket-server
+      dockerfile: Dockerfile.socket
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./socket-server:/app
+    networks:
+      - main
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: postgres_db
+    ports:
+      - "5432:5432"
+    networks:
+      - main
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+networks:
+  main:
+  
+

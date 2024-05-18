@@ -1,0 +1,35 @@
+# pull official base image
+FROM python:3.11
+
+# set work directory
+WORKDIR /app
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install dependencies
+RUN pip install --upgrade pip
+COPY ./requirements.txt ./
+RUN pip install -r requirements.txt
+
+RUN pip install gunicorn
+RUN pip install watchdog
+RUN playwright install
+RUN playwright install-deps
+
+# copy project
+COPY . ./
+
+# Copy .env file
+COPY .env ./
+
+# Add entrypoint script
+COPY entrypoint.sh /usr/src/app/entrypoint.sh
+RUN chmod +x /usr/src/app/entrypoint.sh
+
+# specify the entrypoint script
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+
+CMD ["watchmedo", "auto-restart", "--directory=./src", "--pattern=*.py", "--recursive", "--", "gunicorn", "-b", ":5000", "manage:app"]
+# CMD ["watchmedo", "auto-restart", "--directory=./api", "--pattern=*.py", "--recursive", "--", "gunicorn", "-b", ":5000", "manage:app"]
