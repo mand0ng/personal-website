@@ -15,6 +15,8 @@ export default function WebScraper() {
         }
     ];
 
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const [searchText, setSearchText] = useState("");
     const [loading, setLoading] = useState(false);
     const socket = useRef(null);
@@ -80,7 +82,7 @@ export default function WebScraper() {
     const fetchTodaysProductDeals = async () => {
         try {
 
-            const res = await fetch('http://localhost:5000/api/fetch-todays-deal', {
+            const res = await fetch(API_URL+'/api/fetch-todays-deal', {
                 method: 'GET',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
@@ -127,7 +129,7 @@ export default function WebScraper() {
         try {
             setLoading(true);
 
-            const res = await fetch('http://localhost:5000/api/search', {
+            const res = await fetch(API_URL+'/api/search', {
                 method: 'POST',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },

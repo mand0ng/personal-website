@@ -4,10 +4,11 @@ import { io } from "socket.io-client";
 import { useState, useMemo } from "react";
 
 let socket;
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
 
 export const initSocket = () => {
 
-        socket = io("http://localhost:3001", { transports: ["websocket"]});
+        socket = io(SOCKET_URL, { transports: ["websocket"]});
     
         socket.on("connect", () => {
             console.info("Socket connection established.");

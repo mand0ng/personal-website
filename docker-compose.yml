@@ -13,6 +13,9 @@ services:
       - ./client:/app
     environment:
       - NODE_ENV=development
+      - NEXT_PUBLIC_SOCKET_URL=${SOCKET_URL:?ERROR_NEXT_PUBLIC_SOCKET_URL}
+      - NEXT_PUBLIC_API_URL=${API_URL:?ERROR_NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_CLIENT_URL=${CLIENT_URL:?ERROR_NEXT_PUBLIC_CLIENT_URL}
   api:
     build:
       context: ./api
@@ -23,6 +26,8 @@ services:
       - ./api:/app
     networks:
       - main
+    environment:
+      - API_URL=${API_URL:?ERROR_API_URL}
 
   socket_server:
     build:
@@ -34,14 +39,16 @@ services:
       - ./socket-server:/app
     networks:
       - main
+    environment:
+      - CLIENT_URL=${CLIENT_URL:?ERROR_CLIENT_URL}
 
   postgres:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: postgres_db
+      POSTGRES_USER: ${POSTGRES_USER:?ERROR_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?ERROR_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?ERROR_POSTGRES_DB}
     ports:
       - "5432:5432"
     networks:

@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 AMAZON = "https://amazon.ca"
+API_URL = os.getenv("API_URL")
 
 URLS = {
     AMAZON: {
@@ -111,7 +112,7 @@ def post_results(results, endpoint, mode, search_text=None, source=None):
         data["source"] = source
 
     print("Sending request to", endpoint)
-    response = post("http://localhost:5000" + endpoint,
+    response = post(API_URL + endpoint,
                     headers=headers, json=data)
     print("Status code:", response.status_code)
 

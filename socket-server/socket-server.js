@@ -1,11 +1,13 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const cors = require('cors')
-const bodyParser = require("body-parser")
-
+const cors = require('cors');
+const bodyParser = require("body-parser");
 const app = express();
-app.use(cors({ origin: 'http://localhost:3000' }));
+
+const CLIENT_URL = process.env.CLIENT_URL;
+
+app.use(cors({ origin: CLIENT_URL }));
 app.use(bodyParser.json())
 
 const server = http.createServer(app);
