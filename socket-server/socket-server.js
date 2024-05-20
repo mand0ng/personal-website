@@ -5,11 +5,14 @@ const cors = require('cors')
 const bodyParser = require("body-parser")
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:3000' }));
+// const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:3000"
+const CLIENT = "http://localhost";
+console.log("SOCKET-SERVER.JS: ", CLIENT);
+app.use(cors({ origin: CLIENT }));
 app.use(bodyParser.json())
 
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {path:"/ws"});
 
 io.on('connection', (socket) => {
   console.log('Client connected');
@@ -17,6 +20,13 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
+});
+
+io.engine.on("connection_error", (err) => {
+  console.log(err.req);      // the request object
+  console.log(err.code);     // the error code, for example 1
+  console.log(err.message);  // the error message, for example "Session ID unknown"
+  console.log(err.context);  // some additional error context
 });
 
 app.post('/data-from-flask', (req, res) => {

@@ -15,7 +15,7 @@ export default function CardItem({ item }) {
                         {item.name}
                     </a>
                     {/* <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 px-2 text-sm text-gray-100 rounded-md absolute bottom-full  transform -translate-x-1/2"> */}
-                    <span className="hidden opacity-0 group-hover:block group-hover:opacity-100 transition-opacity bg-gray-900 p-2 text-sm text-gray-100 rounded-md absolute left-10 transform translate-y-10">
+                    <span className="hidden opacity-0 group-hover:block group-hover:opacity-100 transition-opacity bg-gray-900 p-2 text-sm text-gray-100 rounded-md absolute left-10 transform translate-y-10 z-10">
                         {item.name}
                     </span>
                 </div>

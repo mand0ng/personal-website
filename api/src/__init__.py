@@ -13,6 +13,9 @@ import threading
 db = SQLAlchemy()
 load_dotenv()
 
+# REACT_APP_SOCKET_URL = os.getenv("REACT_APP_SOCKET_URL", "http://localhost:3001")
+REACT_APP_SOCKET_URL = os.getenv("REACT_APP_SOCKET_URL", "http://localhost/ws")
+
 class User(db.Model):
     __tablename__ = "users"
 
@@ -93,15 +96,18 @@ def create_app():
     
     def pass_data_to_websocket(data):
 
-        express_endpoint = 'http://socket_server:3001/data-from-flask'
-        try:
-            response = requests.post(express_endpoint, json=data)
-            if response.status_code == 200:
-                print("Data passed to Express inside WebSocket successfully")
-            else:
-                print("Failed to pass data to Express inside WebSocket")
-        except Exception as e:
-            print("Error:", e)
+        express_endpoint = 'http://localhost:3001/data-from-flask'
+        # express_endpoint = REACT_APP_SOCKET_URL + '/data-from-flask'
+        print("pass_data_to_websocket:", express_endpoint)
+        # try:
+        response = requests.post(express_endpoint, json=data)
+        print("pass_data_to_websocket response :", response)
+        if response.status_code == 200:
+            print("Data passed to Express inside WebSocket successfully")
+        else:
+            print("Failed to pass data to Express inside WebSocket")
+        # except Exception as e:
+            # print("Error:", e)
 
         return
 
@@ -109,6 +115,8 @@ def create_app():
     def procces_scraped_data(results, mode):
         MODE_1 = os.getenv("SCRAPER_MODE_1", "1")
         MODE_2 = os.getenv("SCRAPER_MODE_2", "2")
+
+        print("Processing data with mode:", mode)
 
         # save to db 
         if mode == MODE_2:
@@ -133,8 +141,9 @@ def create_app():
         return
     
     
-    def run_scraper(url, search_text, mode):
-        command = f"python3 ./scraper/__init__.py {url} \"{search_text}\" /api/results {mode}"
+    def run_scraper(url, search_text, mode, session_id):
+        # command = f"python3 ./scraper/__init__.py {url} \"{search_text}\" /api/results {mode} {session_id}"
+        command = f"python3 ./scraper/__init__.py {url} \"{search_text}\" /api/results {mode} {session_id}"
         subprocess.Popen(command, shell=True)
         
         # DEBUG..
@@ -147,13 +156,17 @@ def create_app():
     ### "/api/*" ###
     api_bp = Blueprint('api', __name__, url_prefix='/api')
 
+    @api_bp.route("/test", methods=["GET"])
+    def test():
+        return res({"message": "Hello World"}, 200)
+
     @api_bp.route("/search", methods=["POST"])
     def search():
         url = "https://amazon.ca"
         search_text = request.json.get('search_text')
         session_id = str(uuid.uuid4())
 
-        run_scraper(url,search_text, os.getenv("SCRAPER_MODE_1", "1"))
+        run_scraper(url,search_text, os.getenv("SCRAPER_MODE_1", "1"), session_id)
 
         return res({'message': 'Scraper Initialized', "session_id": session_id}, 200)
         
@@ -163,8 +176,13 @@ def create_app():
         data = request.json
         results = data.get('data')
         mode = data.get("mode")
+        session_id = data.get("session_id")
+
+        print("Received data:", data)
 
         procces_scraped_data(results, mode)
+
+        # pass_data_to_websocket(results)
 
         print("submit_results: done")
         return res({'message': 'Pass data to WS successfully'}, 200)
@@ -172,7 +190,7 @@ def create_app():
 
     @api_bp.route("/fetch-todays-deal", methods=["GET"])
     def fetch_todays_deal():
-        
+        print("fetch_todays_deal: fetching todays product deals")
         todays_product_deals = TodaysProductDeal.query.all()
 
         # if len(todays_product_deals) == 0:
@@ -181,9 +199,6 @@ def create_app():
         #     search_text = "test"
         #     mode = 2
         #     run_scraper(url, search_text, mode)
-
-            # pass and trigger data to socket 
-            # return initial request with uuid, make a loader
 
 
         data = []

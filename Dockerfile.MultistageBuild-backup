@@ -1,0 +1,84 @@
+# Stage 1: Build Next.js client
+FROM node:20-alpine3.19 AS client-builder
+WORKDIR /app/client
+COPY ./client/package*.json ./client/yarn.lock ./
+RUN yarn install
+COPY ./client/ .
+RUN yarn build
+
+# Stage 2: Build Flask API
+FROM python:3.11 AS api-builder
+WORKDIR /app/api
+COPY ./api/requirements.txt ./
+RUN pip install -r requirements.txt
+COPY ./api/ .
+
+# Stage 3: Build WebSocket server
+FROM node:20.5.1-bookworm-slim AS socket-builder
+WORKDIR /app/socket-server
+COPY ./socket-server/package*.json ./socket-server/yarn.lock ./
+RUN yarn install
+COPY ./socket-server/ .
+
+# Stage 4: Final image
+FROM ubuntu:20.04
+
+# Set environment variable to avoid interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install Node.js, Yarn, Python, PostgreSQL client, and Nginx
+RUN apt-get update && apt-get install -y \
+    curl \
+    postgresql-client \
+    software-properties-common \
+    nginx \
+    && curl -sL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y \
+    yarn \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    && curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11 \
+    && apt-get clean
+
+# Ensure python3 points to python3.11
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
+    update-alternatives --set python3 /usr/bin/python3.11
+
+WORKDIR /app
+
+# Copy built Next.js client
+COPY --from=client-builder /app/client/.next /app/client/.next
+COPY --from=client-builder /app/client/public /app/client/public
+COPY --from=client-builder /app/client/package*.json /app/client/yarn.lock /app/client/
+RUN cd /app/client && yarn install --production
+
+# Copy Flask API
+COPY --from=api-builder /app/api /app/api
+
+# Copy WebSocket server
+COPY --from=socket-builder /app/socket-server /app/socket-server
+
+# Install dependencies for Flask API
+RUN pip3 install --upgrade pip
+RUN pip3 install -r /app/api/requirements.txt
+RUN pip3 install gunicorn
+RUN pip3 install playwright
+RUN playwright install --with-deps
+
+# Install dependencies for WebSocket server
+WORKDIR /app/socket-server
+RUN yarn install --production
+
+# Nginx configuration
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Expose only port 80
+EXPOSE 80
+
+# Start all services
+CMD ["sh", "-c", "cd /app/api && gunicorn -b :5000 manage:app & cd /app/socket-server && yarn start & cd /app/client && yarn start -p 3000 & nginx -g 'daemon off;'"]

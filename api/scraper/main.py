@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 AMAZON = "https://amazon.ca"
+# API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:5000")
+API_BASE_URL = "http://localhost"
 
 URLS = {
     AMAZON: {
@@ -98,12 +100,12 @@ def save_results(results):
         json.dump(data, f)
 
 
-def post_results(results, endpoint, mode, search_text=None, source=None):
+def post_results(results, endpoint, mode, search_text=None, source=None, session_id=None):
     headers = {
         "Content-Type": "application/json"
     }
     
-    data = {"data": results, "mode": mode}
+    data = {"data": {"results":results, "session_id":session_id}, "mode": mode}
 
     if search_text is not None:
         data["search_text"] = search_text
@@ -111,14 +113,14 @@ def post_results(results, endpoint, mode, search_text=None, source=None):
         data["source"] = source
 
     print("Sending request to", endpoint)
-    response = post("http://localhost:5000" + endpoint,
+    response = post(API_BASE_URL + endpoint,
                     headers=headers, json=data)
     print("Status code:", response.status_code)
 
 # url = amazon.ca 
 # search text 
 # /results
-async def main(url, search_text, response_route):
+async def main(url, search_text, response_route, session_id):
     metadata = URLS.get(url)
     if not metadata:
         print("Invalid URL.")
@@ -143,7 +145,7 @@ async def main(url, search_text, response_route):
         results = await get_products(search_page, search_text, metadata["product_selector"], func)
         print("Saving results.")
         MODE_1 = os.getenv("SCRAPER_MODE_1", "1")
-        post_results(results, response_route, MODE_1, search_text, url)
+        post_results(results, response_route, MODE_1, search_text, url, session_id)
 
         await browser.close()
 

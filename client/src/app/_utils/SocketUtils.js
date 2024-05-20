@@ -7,21 +7,74 @@ let socket;
 
 export const initSocket = () => {
 
-        socket = io("http://localhost:3001", { transports: ["websocket"]});
+    // const socketUrl = process.env.REACT_APP_SOCKET_URL || "http://localhost:3001";
+    const socketUrl = "http://localhost";
+
+    console.log("socketURL: ", socketUrl);
+    // socket = io(socketUrl, { path: "/ws/", transports: ["websocket"] });
+    socket = io(socketUrl, { path: "/ws", transports: ["websocket"] });
+
+    // socket.on("connect", () => {
+    //     console.info("Socket connection established.");
+    // });
+
+    // socket.on("disconnect", () => {
+    //     console.info("Socket connection disconnected.");
+    // });
+
+    // socket.on("connect_error", (err) => {
+    //     // the reason of the error, for example "xhr poll error"
+    //     console.log(err.message);
+
+    //     // some additional description, for example the status code of the initial HTTP response
+    //     console.log(err.description);
+
+    //     // some additional context, for example the XMLHttpRequest object
+    //     console.log(err.context);
+    // });
     
-        socket.on("connect", () => {
-            console.info("Socket connection established.");
+
+    socket.on('connect', () => {
+        console.info("Socket connect.");
+    });
+
+    socket.on('disconnect', () => {
+        console.info("Socket disconnect.");
+    });
+
+    socket.on('connection', socket => {
+        console.info("Socket connection.");
+        socket.on('disconnect', () => {
+            console.info("Socket disconnect. (connection) ");
         });
+        socket.on("connect_error", (err) => {
+            // the reason of the error, for example "xhr poll error"
+            console.log("1 cn",err.message);
     
-        socket.on("disconnect", () => {
-            console.info("Socket connection disconnected.");
+            // some additional description, for example the status code of the initial HTTP response
+            console.log("2 cn",err.description);
+    
+            // some additional context, for example the XMLHttpRequest object
+            console.log("3 cn",err.context);
         });
-    
+    });
+
+    socket.on("connect_error", (err) => {
+        // the reason of the error, for example "xhr poll error"
+        console.log("1",err.message);
+
+        // some additional description, for example the status code of the initial HTTP response
+        console.log("2",err.description);
+
+        // some additional context, for example the XMLHttpRequest object
+        console.log("3",err.context);
+    });
+
     return socket;
 };
 
 export const registerSocketCallback = (callback) => {
-    if(!socket) {
+    if (!socket) {
         console.warn("Socket not initialized.")
         return;
     }
@@ -29,11 +82,11 @@ export const registerSocketCallback = (callback) => {
     socket.on("search_result", (data) => {
         console.info("registerSocketCallback: Search Result: ", data);
         callback(data);
-    });    
+    });
 };
 
 export const disconnectSocket = () => {
-    if(socket) {
+    if (socket) {
         socket.disconnect();
     }
 };

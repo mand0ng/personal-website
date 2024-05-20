@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 if __name__ == '__main__':
     # Extract command-line arguments
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 5:
         print('Usage: python -m package_name url search_text endpoint')
         sys.exit(1)
 
@@ -18,10 +18,11 @@ if __name__ == '__main__':
     search_text = sys.argv[2]
     endpoint = sys.argv[3]
     mode = sys.argv[4]
+    session_id = sys.argv[5]
 
     # Run the scraper asynchronously
     if mode == MODE_1:
-        asyncio.run(main(url, search_text, endpoint))
+        asyncio.run(main(url, search_text, endpoint, session_id))
         # print("mode1: " +mode)
     else:
         # print("mode2: " +mode)

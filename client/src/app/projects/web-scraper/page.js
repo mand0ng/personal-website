@@ -15,6 +15,9 @@ export default function WebScraper() {
         }
     ];
 
+    // const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:5000";
+    const API_BASE_URL = "http://localhost/api";
+
     const [searchText, setSearchText] = useState("");
     const [loading, setLoading] = useState(false);
     const socket = useRef(null);
@@ -35,6 +38,7 @@ export default function WebScraper() {
 
     // SOCKET UTILS
     const { clientID, setID, unsetID } = useSocketClientSession();
+    const clientIDRef = useRef(clientID);
 
     useEffect(() => {
         socket.current = initSocket();
@@ -51,13 +55,21 @@ export default function WebScraper() {
 
         const callback = (data) => {
             console.log("Web Scraper Page Callback: ", data);
+            let emitID = data.session_id;
+            console.log("emitID: ",emitID);
+            console.log("clientID: ", clientIDRef.current);
 
-            // TODO .. display data here ..
+           
 
-            setSearchItems(data);
+            if (emitID == clientIDRef.current) {
+                setSearchItems(data.results);
+                setLoading(false);
+            }
 
-            setLoading(false);
+            
         };
+
+        clientIDRef.current = clientID;
 
         registerSocketCallback(callback);
 
@@ -67,7 +79,7 @@ export default function WebScraper() {
         return () => {
             disconnectSocket();
         };
-    }, [socket]);
+    }, [socket, clientID]);
 
     const nextPage = () => {
         setCurrentPage(prevPage => prevPage + 1);
@@ -80,8 +92,9 @@ export default function WebScraper() {
     const fetchTodaysProductDeals = async () => {
         try {
 
-            const res = await fetch('http://localhost:5000/api/fetch-todays-deal', {
-                method: 'GET',
+            // const res = await fetch(API_BASE_URL+'/api/fetch-todays-deal', {
+            const res = await fetch(API_BASE_URL+'/fetch-todays-deal', {
+            method: 'GET',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
                 // body: JSON.stringify({ search_text: searchText }),
@@ -126,8 +139,8 @@ export default function WebScraper() {
 
         try {
             setLoading(true);
-
-            const res = await fetch('http://localhost:5000/api/search', {
+            
+            const res = await fetch(API_BASE_URL+'/search', {
                 method: 'POST',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
