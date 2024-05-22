@@ -1,0 +1,37 @@
+:root {
+    --primary-color: #000;
+    --secondary-color: #333;
+    --button-bg: #555;
+    --link-bg: #ddd;
+    --link-text: #000;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary-color: #fff;
+      --secondary-color: #ccc;
+      --button-bg: #444;
+      --link-bg: #222;
+      --link-text: #fff;
+    }
+  }
+  
+  .text-primary {
+    color: var(--primary-color);
+  }
+  
+  .text-secondary {
+    color: var(--secondary-color);
+  }
+  
+  .bg-button {
+    background-color: var(--button-bg);
+  }
+  
+  .bg-link {
+    background-color: var(--link-bg);
+  }
+  
+  .text-link-text {
+    color: var(--link-text);
+  }

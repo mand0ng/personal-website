@@ -11,6 +11,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "Emmanuel Pedroza's Personal Website",
   description: "This is my personal website",
+  ogImage: "/bike/gallery_10.jpg",
 };
 
 export default function RootLayout({ children }) {

@@ -10,7 +10,8 @@ load_dotenv()
 
 AMAZON = "https://amazon.ca"
 # API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:5000")
-API_BASE_URL = "http://localhost"
+# API_BASE_URL = "http://localhost"
+API_BASE_URL = "https://my-personal-website-craqo.ondigitalocean.app"
 
 URLS = {
     AMAZON: {

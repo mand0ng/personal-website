@@ -88,8 +88,11 @@ RUN yarn install --production
 # Nginx configuration
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Expose only port 80
+# Expose only port 8080
 EXPOSE 80
+
+# Set environment variable
+ENV VERSION=working
 
 # Start all services
 CMD ["sh", "-c", "cd /app/api && gunicorn -b :5000 manage:app & cd /app/socket-server && yarn start & cd /app/client && yarn start -p 3000 & nginx -g 'daemon off;'"]

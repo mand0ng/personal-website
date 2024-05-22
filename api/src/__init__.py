@@ -14,7 +14,8 @@ db = SQLAlchemy()
 load_dotenv()
 
 # REACT_APP_SOCKET_URL = os.getenv("REACT_APP_SOCKET_URL", "http://localhost:3001")
-REACT_APP_SOCKET_URL = os.getenv("REACT_APP_SOCKET_URL", "http://localhost/ws")
+# REACT_APP_SOCKET_URL = os.getenv("REACT_APP_SOCKET_URL", "http://localhost/ws")
+EXPRESS_SERVER = "https://my-personal-website-craqo.ondigitalocean.app/exp"
 
 class User(db.Model):
     __tablename__ = "users"
@@ -97,7 +98,7 @@ def create_app():
     def pass_data_to_websocket(data):
 
         express_endpoint = 'http://localhost:3001/data-from-flask'
-        # express_endpoint = REACT_APP_SOCKET_URL + '/data-from-flask'
+        # express_endpoint = EXPRESS_SERVER + '/data-from-flask'
         print("pass_data_to_websocket:", express_endpoint)
         # try:
         response = requests.post(express_endpoint, json=data)
